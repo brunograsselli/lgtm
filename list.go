@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
+
+	"github.com/spf13/viper"
 )
 
 type User struct {
@@ -21,13 +22,13 @@ type PullRequest struct {
 }
 
 func List() {
-	repo := os.Getenv("GITHUBREPO")
-	user := os.Getenv("GITHUBUSER")
-	token := os.Getenv("GITHUBTOKEN")
+	repos := viper.GetStringSlice("repos")
+	user := viper.GetString("user")
+	token := viper.GetString("token")
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/pulls", repos[0]), nil)
 
 	if err != nil {
 		panic(err)
