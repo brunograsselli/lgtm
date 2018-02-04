@@ -2,7 +2,7 @@
 
 CLI tool to list Github pull requests waiting for review.
 
-# Configuration Example (~/.lgtm.yml)
+## Configuration Example (~/.lgtm.yml)
 
 ```shell
 repos:
@@ -12,12 +12,12 @@ user: github_user
 token: github_oauth_token
 ```
 
-# Usage
+## Usage
 
 ```shell
 $ lgtm list
 ```
 
-# TODO
+## TODO
 * Generate OAUTH token automatically
 * Implement command to open a PR
