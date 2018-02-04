@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -41,18 +42,7 @@ func List() {
 		}
 	}
 
-	if len(reposWithPrs) == 0 {
-		fmt.Println("You are up to date!")
-		return
-	}
-
-	for repo, prs := range reposWithPrs {
-		fmt.Printf("%s:\n", repo)
-		for _, pr := range prs {
-			fmt.Printf("  %s\n", pr.Title)
-		}
-		fmt.Println("")
-	}
+	print(reposWithPrs)
 }
 
 func listRepo(repo string, user string, token string, prsCh chan []PullRequest) {
@@ -106,4 +96,25 @@ func listRepo(repo string, user string, token string, prsCh chan []PullRequest) 
 	}
 
 	prsCh <- prs
+}
+
+func print(repos map[string][]PullRequest) {
+	if len(repos) == 0 {
+		fmt.Println("You are up to date!")
+		return
+	}
+
+	out := []string{}
+
+	for repo, prs := range repos {
+		out = append(out, fmt.Sprintf("%s:", repo))
+
+		for _, pr := range prs {
+			out = append(out, fmt.Sprintf("  %s", pr.Title))
+		}
+
+		out = append(out, "")
+	}
+
+	fmt.Println(strings.Join(out[0:len(out)-1], "\n"))
 }
