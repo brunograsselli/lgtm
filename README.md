@@ -1,6 +1,6 @@
 # LGTM
 
-CLI tool to list Github pull requests waiting for review.
+Command line tool to list Github pull requests waiting for review.
 
 ## Configuration Example (~/.lgtm.yml)
 
