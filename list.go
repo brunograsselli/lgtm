@@ -3,8 +3,6 @@ package lgtm
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -25,11 +23,10 @@ type PullRequest struct {
 func List() {
 	repos := viper.GetStringSlice("repos")
 	user := viper.GetString("user")
-	token := viper.GetString("token")
 	prsCh := make(chan []PullRequest)
 
 	for _, repo := range repos {
-		go listRepo(repo, user, token, prsCh)
+		go listRepo(repo, user, prsCh)
 	}
 
 	reposWithPrs := make(map[string][]PullRequest)
@@ -45,33 +42,11 @@ func List() {
 	print(reposWithPrs)
 }
 
-func listRepo(repo string, user string, token string, prsCh chan []PullRequest) {
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo), nil)
+func listRepo(repo string, user string, prsCh chan []PullRequest) {
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo))
 
 	if err != nil {
 		panic(err)
-	}
-
-	req.Header.Add("Authorization", fmt.Sprintf("token %s", token))
-
-	resp, err := client.Do(req)
-
-	defer resp.Body.Close()
-
-	if err != nil {
-		panic(err)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		panic(err)
-	}
-
-	if resp.StatusCode != 200 {
-		panic(fmt.Sprintf("Unexpected response code %d", resp.StatusCode))
 	}
 
 	var pullRequests []PullRequest
