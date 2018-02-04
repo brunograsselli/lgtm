@@ -35,17 +35,23 @@ func List() {
 
 	for _, repo := range repos {
 		repoPrs := <-prsCh
-		reposWithPrs[repo] = repoPrs
+
+		if len(repoPrs) > 0 {
+			reposWithPrs[repo] = repoPrs
+		}
+	}
+
+	if len(reposWithPrs) == 0 {
+		fmt.Println("You are up to date!")
+		return
 	}
 
 	for repo, prs := range reposWithPrs {
-		if len(prs) > 0 {
-			fmt.Printf("Repository: %s\n", repo)
-			for _, pr := range prs {
-				fmt.Printf("* %s\n", pr.Title)
-			}
-			fmt.Println("")
+		fmt.Printf("%s:\n", repo)
+		for _, pr := range prs {
+			fmt.Printf("  %s\n", pr.Title)
 		}
+		fmt.Println("")
 	}
 }
 
