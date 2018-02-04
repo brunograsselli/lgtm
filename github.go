@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/spf13/viper"
+	"os"
 )
 
 func GitHubGet(uri string) ([]byte, error) {
-	token := viper.GetString("token")
+	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
+
+	token, err := ioutil.ReadFile(credentialsPath)
+	if err != nil {
+		return nil, err
+	}
 
 	client := &http.Client{}
 

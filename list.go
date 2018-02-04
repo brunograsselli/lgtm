@@ -3,6 +3,7 @@ package lgtm
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -21,6 +22,13 @@ type PullRequest struct {
 }
 
 func List() {
+	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
+
+	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
+		fmt.Println("Please log in first (lgtm login)")
+		return
+	}
+
 	repos := viper.GetStringSlice("repos")
 	user := viper.GetString("user")
 	prsCh := make(chan []PullRequest)

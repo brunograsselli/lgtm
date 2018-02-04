@@ -9,15 +9,17 @@ repos:
   - brunograsselli/lgtm
   - brunograsslli/dotvim
 user: github_user
-token: github_oauth_token
 ```
 
 ## Usage
 
 ```shell
+$ lgtm login
 $ lgtm list
 ```
 
 ## TODO
-* Generate OAUTH token automatically
+* Encrypt saved token
+* Implement command to logout
+* Save user from login
 * Implement command to open a PR
