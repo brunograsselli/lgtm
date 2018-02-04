@@ -25,10 +25,34 @@ func List() {
 	repos := viper.GetStringSlice("repos")
 	user := viper.GetString("user")
 	token := viper.GetString("token")
+	prsCh := make(chan []PullRequest)
 
+	for _, repo := range repos {
+		go listRepo(repo, user, token, prsCh)
+	}
+
+	reposWithPrs := make(map[string][]PullRequest)
+
+	for _, repo := range repos {
+		repoPrs := <-prsCh
+		reposWithPrs[repo] = repoPrs
+	}
+
+	for repo, prs := range reposWithPrs {
+		if len(prs) > 0 {
+			fmt.Printf("Repository: %s\n", repo)
+			for _, pr := range prs {
+				fmt.Printf("* %s\n", pr.Title)
+			}
+			fmt.Println("")
+		}
+	}
+}
+
+func listRepo(repo string, user string, token string, prsCh chan []PullRequest) {
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/pulls", repos[0]), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo), nil)
 
 	if err != nil {
 		panic(err)
@@ -57,11 +81,23 @@ func List() {
 	var pullRequests []PullRequest
 	json.Unmarshal([]byte(body), &pullRequests)
 
-	pendingPRs := FilterPullRequest(pullRequests, func(p PullRequest) bool {
-		return IncludeString(MapUserString(p.RequestedReviewers, func(user User) string {
-			return user.Login
-		}), user)
-	})
+	prs := []PullRequest{}
 
-	fmt.Println(pendingPRs)
+	var includePR bool
+
+	for _, pr := range pullRequests {
+		includePR = false
+
+		for _, reviewer := range pr.RequestedReviewers {
+			if reviewer.Login == user {
+				includePR = true
+			}
+		}
+
+		if includePR {
+			prs = append(prs, pr)
+		}
+	}
+
+	prsCh <- prs
 }
