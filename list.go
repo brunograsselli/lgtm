@@ -21,7 +21,7 @@ type PullRequest struct {
 	RequestedReviewers []User `json:"requested_reviewers"`
 }
 
-func List() {
+func List(showAll bool) {
 	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
 
 	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
@@ -34,7 +34,7 @@ func List() {
 	prsCh := make(chan []PullRequest)
 
 	for _, repo := range repos {
-		go listRepo(repo, user, prsCh)
+		go listRepo(repo, user, showAll, prsCh)
 	}
 
 	reposWithPrs := make(map[string][]PullRequest)
@@ -50,7 +50,7 @@ func List() {
 	print(reposWithPrs)
 }
 
-func listRepo(repo string, user string, prsCh chan []PullRequest) {
+func listRepo(repo string, user string, showAll bool, prsCh chan []PullRequest) {
 	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo))
 
 	if err != nil {
@@ -68,7 +68,7 @@ func listRepo(repo string, user string, prsCh chan []PullRequest) {
 		includePR = false
 
 		for _, reviewer := range pr.RequestedReviewers {
-			if reviewer.Login == user {
+			if showAll || reviewer.Login == user {
 				includePR = true
 			}
 		}
