@@ -93,7 +93,7 @@ func print(repos map[string][]PullRequest) {
 		out = append(out, fmt.Sprintf("%s:", repo))
 
 		for _, pr := range prs {
-			out = append(out, fmt.Sprintf("  %s", pr.Title))
+			out = append(out, fmt.Sprintf("  %d\t%s", pr.Number, pr.Title))
 		}
 
 		out = append(out, "")
