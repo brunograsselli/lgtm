@@ -1,7 +1,7 @@
 # LGTM
 
 Command line tool to list Github pull requests waiting for review.
-It is an early stage project used to automated my workflow (and learn golang).
+Early stage project used to automate my workflow (and learn golang).
 Please use with caution :)
 
 ## Installation
