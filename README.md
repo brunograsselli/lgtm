@@ -20,9 +20,8 @@ make build
 
 ## Configuration
 
-Configure your GitHub user name and projects you would like to watch by adding the file `~/.lgtm.yml`.
+Create the file `~/.lgtm.yml` with your GitHub user and the projects you would like to watch.
 
-Eg:
 ```yaml
 repos:
   - brunograsselli/lgtm
