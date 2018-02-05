@@ -6,3 +6,6 @@ build:
 
 run:
 	@go run cmd/lgtm/main.go
+
+install:
+	@go get ./...
