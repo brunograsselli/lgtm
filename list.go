@@ -67,9 +67,13 @@ func listRepo(repo string, user string, showAll bool, prsCh chan []PullRequest) 
 	for _, pr := range pullRequests {
 		includePR = false
 
-		for _, reviewer := range pr.RequestedReviewers {
-			if showAll || reviewer.Login == user {
-				includePR = true
+		if showAll {
+			includePR = true
+		} else {
+			for _, reviewer := range pr.RequestedReviewers {
+				if reviewer.Login == user {
+					includePR = true
+				}
 			}
 		}
 
