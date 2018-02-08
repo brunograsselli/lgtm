@@ -10,6 +10,13 @@ import (
 )
 
 func Open(number int32) {
+	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
+
+	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
+		fmt.Println("Please log in first (lgtm login)")
+		return
+	}
+
 	if _, err := os.Stat("/tmp/lgtm.json"); os.IsNotExist(err) {
 		fmt.Printf("Don't know how to open PR %d\n", number)
 		return

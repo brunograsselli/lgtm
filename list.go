@@ -10,19 +10,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type User struct {
-	Login string `json:"login"`
-}
-
-type PullRequest struct {
-	URL                string `json:"url"`
-	HTMLURL            string `json:"html_url"`
-	Number             int32  `json:"number"`
-	Title              string `json:"title"`
-	User               User   `json:"user"`
-	RequestedReviewers []User `json:"requested_reviewers"`
-}
-
 func List(showAll bool) {
 	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
 
