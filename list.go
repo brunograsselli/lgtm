@@ -3,6 +3,7 @@ package lgtm
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -15,6 +16,7 @@ type User struct {
 
 type PullRequest struct {
 	URL                string `json:"url"`
+	HTMLURL            string `json:"html_url"`
 	Number             int32  `json:"number"`
 	Title              string `json:"title"`
 	User               User   `json:"user"`
@@ -47,6 +49,10 @@ func List(showAll bool) {
 		}
 	}
 
+	err := write(reposWithPrs)
+	if err != nil {
+		panic(err)
+	}
 	print(reposWithPrs)
 }
 
@@ -83,6 +89,22 @@ func listRepo(repo string, user string, showAll bool, prsCh chan []PullRequest) 
 	}
 
 	prsCh <- prs
+}
+
+func write(repos map[string][]PullRequest) error {
+	c, err := json.Marshal(repos)
+
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile("/tmp/lgtm.json", c, 0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func print(repos map[string][]PullRequest) {
