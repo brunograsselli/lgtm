@@ -26,50 +26,33 @@ func Login() error {
 		return nil
 	}
 
-	user, password, err := credentials()
+	user, password, err := askForCredentials()
 
 	if err != nil {
 		return err
 	}
 
-	client := &http.Client{}
-
 	fingerprint := ksuid.New().String()
-	reqBody := []byte(fmt.Sprintf(`{"note":"lgtm","scopes":["repo"],"fingerprint":"%s"}`, fingerprint))
 
-	req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewBuffer(reqBody))
-	req.SetBasicAuth(user, password)
-
-	resp, err := client.Do(req)
+	resp, err := authorize(user, password, fingerprint, "")
 
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode == 401 && resp.Header["X-Github-Otp"] != nil {
+		code := askFor2FACode()
+
+		resp, err = authorize(user, password, fingerprint, code)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-
-	if resp.StatusCode == 401 && resp.Header["X-Github-Otp"] != nil {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter 2FA authentication code: ")
-		code, _ := reader.ReadString('\n')
-		code = strings.TrimSpace(code)
-
-		req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewBuffer(reqBody))
-		req.SetBasicAuth(user, password)
-		req.Header.Add("X-GitHub-OTP", code)
-
-		resp, err = client.Do(req)
-
-		if err != nil {
-			return err
-		}
-
-		defer resp.Body.Close()
-
-		body, err = ioutil.ReadAll(resp.Body)
-	}
 
 	if resp.StatusCode != 201 {
 		fmt.Println(string(body))
@@ -87,7 +70,26 @@ func Login() error {
 	return nil
 }
 
-func credentials() (string, string, error) {
+func authorize(user string, password string, fingerprint string, otpCode string) (*http.Response, error) {
+	reqBody := []byte(fmt.Sprintf(`{"note":"lgtm","scopes":["repo"],"fingerprint":"%s"}`, fingerprint))
+
+	req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewBuffer(reqBody))
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.SetBasicAuth(user, password)
+
+	if otpCode != "" {
+		req.Header.Add("X-GitHub-OTP", otpCode)
+	}
+
+	client := &http.Client{}
+	return client.Do(req)
+}
+
+func askForCredentials() (string, string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter your GitHub user: ")
 	user, _ := reader.ReadString('\n')
@@ -101,4 +103,11 @@ func credentials() (string, string, error) {
 	password := string(bytePassword)
 
 	return strings.TrimSpace(user), strings.TrimSpace(password), nil
+}
+
+func askFor2FACode() string {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter 2FA authentication code: ")
+	code, _ := reader.ReadString('\n')
+	return strings.TrimSpace(code)
 }
