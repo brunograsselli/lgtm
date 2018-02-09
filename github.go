@@ -29,11 +29,11 @@ func GitHubGet(uri string) ([]byte, error) {
 
 	resp, err := client.Do(req)
 
-	defer resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 
