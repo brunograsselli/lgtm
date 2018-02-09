@@ -57,4 +57,3 @@ Use "lgtm [command] --help" for more information about a command.
 * Encrypt saved token
 * Implement command to logout
 * Save user from login
-* Implement command to open a PR
