@@ -16,7 +16,11 @@ var listCmd = &cobra.Command{
 			panic(err)
 		}
 
-		lgtm.List(showAll)
+		err = lgtm.List(showAll)
+
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

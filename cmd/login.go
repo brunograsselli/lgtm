@@ -10,7 +10,11 @@ var loginCmd = &cobra.Command{
 	Short: "Login to GitHub",
 	Long:  `Login to Github`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lgtm.Login()
+		err := lgtm.Login()
+
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

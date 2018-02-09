@@ -9,22 +9,22 @@ import (
 	"runtime"
 )
 
-func Open(number int32) {
+func Open(number int32) error {
 	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
 
 	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
 		fmt.Println("Please log in first (lgtm login)")
-		return
+		return nil
 	}
 
 	if _, err := os.Stat("/tmp/lgtm.json"); os.IsNotExist(err) {
 		fmt.Printf("Don't know how to open PR %d\n", number)
-		return
+		return nil
 	}
 
 	c, err := ioutil.ReadFile("/tmp/lgtm.json")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	var repos map[string][]PullRequest
@@ -37,15 +37,16 @@ func Open(number int32) {
 				err := openBrowser(pr.HTMLURL)
 
 				if err != nil {
-					panic(err)
+					return err
 				}
 
-				return
+				return nil
 			}
 		}
 	}
 
 	fmt.Printf("Don't know how to open PR %d\n", number)
+	return nil
 }
 
 func openBrowser(url string) error {

@@ -10,12 +10,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-func List(showAll bool) {
+func List(showAll bool) error {
 	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
 
 	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
 		fmt.Println("Please log in first (lgtm login)")
-		return
+		return nil
 	}
 
 	repos := viper.GetStringSlice("repos")
@@ -38,9 +38,10 @@ func List(showAll bool) {
 
 	err := write(reposWithPrs)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	print(reposWithPrs)
+	return nil
 }
 
 func listRepo(repo string, user string, showAll bool, prsCh chan []PullRequest) {

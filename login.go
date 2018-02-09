@@ -18,18 +18,18 @@ type Authorization struct {
 	Token string `json:"token"`
 }
 
-func Login() {
+func Login() error {
 	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
 
 	if _, err := os.Stat(credentialsPath); err == nil {
 		fmt.Println("You are already logged in.")
-		return
+		return nil
 	}
 
 	user, password, err := credentials()
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	client := &http.Client{}
@@ -43,7 +43,7 @@ func Login() {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer resp.Body.Close()
@@ -63,7 +63,7 @@ func Login() {
 		resp, err = client.Do(req)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		defer resp.Body.Close()
@@ -73,7 +73,7 @@ func Login() {
 
 	if resp.StatusCode != 201 {
 		fmt.Println(string(body))
-		return
+		return nil
 	}
 
 	var auth Authorization
@@ -81,9 +81,10 @@ func Login() {
 
 	err = ioutil.WriteFile(credentialsPath, []byte(auth.Token), 0644)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Println("Success!")
+	return nil
 }
 
 func credentials() (string, string, error) {

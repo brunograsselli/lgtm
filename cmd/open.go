@@ -33,7 +33,11 @@ var openCmd = &cobra.Command{
 			panic(err)
 		}
 
-		lgtm.Open(int32(number))
+		err = lgtm.Open(int32(number))
+
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

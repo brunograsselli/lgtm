@@ -22,7 +22,7 @@ func GitHubGet(uri string) ([]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("token %s", token))
