@@ -10,6 +10,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Repo struct {
+	PullRequests []PullRequest
+	Error        error
+}
+
 func List(showAll bool) error {
 	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
 
@@ -18,21 +23,25 @@ func List(showAll bool) error {
 		return nil
 	}
 
-	repos := viper.GetStringSlice("repos")
+	repoNames := viper.GetStringSlice("repos")
 	user := viper.GetString("user")
-	prsCh := make(chan []PullRequest)
+	repoCh := make(chan Repo)
 
-	for _, repo := range repos {
-		go listRepo(repo, user, showAll, prsCh)
+	for _, repo := range repoNames {
+		go listRepo(repo, user, showAll, repoCh)
 	}
 
 	reposWithPrs := make(map[string][]PullRequest)
 
-	for _, repo := range repos {
-		repoPrs := <-prsCh
+	for _, name := range repoNames {
+		repo := <-repoCh
 
-		if len(repoPrs) > 0 {
-			reposWithPrs[repo] = repoPrs
+		if repo.Error != nil {
+			return repo.Error
+		}
+
+		if len(repo.PullRequests) > 0 {
+			reposWithPrs[name] = repo.PullRequests
 		}
 	}
 
@@ -44,11 +53,12 @@ func List(showAll bool) error {
 	return nil
 }
 
-func listRepo(repo string, user string, showAll bool, prsCh chan []PullRequest) {
+func listRepo(repo string, user string, showAll bool, repoCh chan Repo) {
 	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo))
 
 	if err != nil {
-		panic(err)
+		repoCh <- Repo{Error: err}
+		return
 	}
 
 	var pullRequests []PullRequest
@@ -76,7 +86,7 @@ func listRepo(repo string, user string, showAll bool, prsCh chan []PullRequest) 
 		}
 	}
 
-	prsCh <- prs
+	repoCh <- Repo{PullRequests: prs}
 }
 
 func write(repos map[string][]PullRequest) error {

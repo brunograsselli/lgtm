@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/brunograsselli/lgtm"
 	"github.com/spf13/cobra"
 )
@@ -19,7 +21,7 @@ var listCmd = &cobra.Command{
 		err = lgtm.List(showAll)
 
 		if err != nil {
-			panic(err)
+			fmt.Printf("An error occurred while processing your request:\n  %s\n", err.Error())
 		}
 	},
 }
