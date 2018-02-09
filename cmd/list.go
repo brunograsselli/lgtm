@@ -10,7 +10,7 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List pull requests waiting for your review",
-	Long:  `List pull requests waiting for your review.`,
+	Long:  "List pull requests waiting for your review",
 	Run: func(cmd *cobra.Command, args []string) {
 		showAll, err := cmd.Flags().GetBool("all")
 

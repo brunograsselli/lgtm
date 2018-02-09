@@ -13,8 +13,8 @@ var cfgFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "lgtm",
-	Short: "Watch pull requests waiting for your review.",
-	Long:  `Watch pull requests waiting for your review.`,
+	Short: "Watch pull requests waiting for your review",
+	Long:  "Watch pull requests waiting for your review",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

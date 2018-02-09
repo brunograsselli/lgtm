@@ -8,7 +8,7 @@ import (
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login to GitHub",
-	Long:  `Login to Github`,
+	Long:  "Login to Github",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := lgtm.Login()
 
