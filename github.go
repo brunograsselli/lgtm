@@ -49,7 +49,7 @@ func GitHubGet(uri string) ([]byte, error) {
 	return body, nil
 }
 
-func GitHubAuthoriza(user string, password string, fingerprint string, otpCode string) (*http.Response, error) {
+func GitHubAuthorize(user string, password string, fingerprint string, otpCode string) (*http.Response, error) {
 	reqBody := []byte(fmt.Sprintf(`{"note":"lgtm","scopes":["repo"],"fingerprint":"%s"}`, fingerprint))
 
 	req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewBuffer(reqBody))

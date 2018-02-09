@@ -28,7 +28,7 @@ func Login() error {
 
 	fingerprint := ksuid.New().String()
 
-	resp, err := GitHubAuthoriza(user, password, fingerprint, "")
+	resp, err := GitHubAuthorize(user, password, fingerprint, "")
 
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func Login() error {
 	if resp.StatusCode == 401 && resp.Header["X-Github-Otp"] != nil {
 		code := askFor2FACode()
 
-		resp, err = GitHubAuthoriza(user, password, fingerprint, code)
+		resp, err = GitHubAuthorize(user, password, fingerprint, code)
 
 		if err != nil {
 			return err
