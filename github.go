@@ -1,6 +1,7 @@
 package lgtm
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -46,4 +47,23 @@ func GitHubGet(uri string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func GitHubAuthoriza(user string, password string, fingerprint string, otpCode string) (*http.Response, error) {
+	reqBody := []byte(fmt.Sprintf(`{"note":"lgtm","scopes":["repo"],"fingerprint":"%s"}`, fingerprint))
+
+	req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewBuffer(reqBody))
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.SetBasicAuth(user, password)
+
+	if otpCode != "" {
+		req.Header.Add("X-GitHub-OTP", otpCode)
+	}
+
+	client := &http.Client{}
+	return client.Do(req)
 }

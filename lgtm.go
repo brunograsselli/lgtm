@@ -12,3 +12,7 @@ type PullRequest struct {
 	User               User   `json:"user"`
 	RequestedReviewers []User `json:"requested_reviewers"`
 }
+
+type Authorization struct {
+	Token string `json:"token"`
+}
