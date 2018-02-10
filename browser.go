@@ -10,16 +10,10 @@ import (
 )
 
 type Browser struct {
-	CredentialsPath string
 	LastResultsPath string
 }
 
 func (b *Browser) Open(number int32) error {
-	if _, err := os.Stat(b.CredentialsPath); os.IsNotExist(err) {
-		fmt.Println("Please log in first (lgtm login)")
-		return nil
-	}
-
 	if _, err := os.Stat(b.LastResultsPath); os.IsNotExist(err) {
 		fmt.Printf("Don't know how to open PR %d\n", number)
 		return nil

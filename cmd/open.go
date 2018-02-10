@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/brunograsselli/lgtm"
@@ -36,7 +34,6 @@ var openCmd = &cobra.Command{
 		}
 
 		browser := lgtm.Browser{
-			CredentialsPath: fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME")),
 			LastResultsPath: "/tmp/lgtm.json",
 		}
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -15,10 +14,8 @@ type Repo struct {
 	Error        error
 }
 
-func List(showAll bool) error {
-	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
-
-	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
+func List(showAll bool, secrets *Secrets) error {
+	if !secrets.CheckToken() {
 		fmt.Println("Please log in first (lgtm login)")
 		return nil
 	}
@@ -28,7 +25,7 @@ func List(showAll bool) error {
 	repoCh := make(chan Repo)
 
 	for _, repo := range repoNames {
-		go listRepo(repo, user, showAll, repoCh)
+		go listRepo(repo, user, showAll, secrets, repoCh)
 	}
 
 	reposWithPrs := make(map[string][]PullRequest)
@@ -53,8 +50,8 @@ func List(showAll bool) error {
 	return nil
 }
 
-func listRepo(repo string, user string, showAll bool, repoCh chan Repo) {
-	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo))
+func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh chan Repo) {
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo), secrets)
 
 	if err != nil {
 		repoCh <- Repo{Error: err}

@@ -17,6 +17,8 @@ var rootCmd = &cobra.Command{
 	Long:  "Watch pull requests waiting for your review",
 }
 
+var secretsPath = fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {

@@ -12,10 +12,10 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func Login() error {
-	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
+func Login(secrets *Secrets) error {
+	token, _ := secrets.Token()
 
-	if _, err := os.Stat(credentialsPath); err == nil {
+	if token != nil {
 		fmt.Println("You are already logged in.")
 		return nil
 	}
@@ -56,10 +56,12 @@ func Login() error {
 	var auth Authorization
 	json.Unmarshal(body, &auth)
 
-	err = ioutil.WriteFile(credentialsPath, []byte(auth.Token), 0644)
+	err = secrets.SaveToken(auth.Token)
+
 	if err != nil {
 		return err
 	}
+
 	fmt.Println("Success!")
 	return nil
 }

@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
-func GitHubGet(uri string) ([]byte, error) {
-	credentialsPath := fmt.Sprintf("%s/.lgtm.secret", os.Getenv("HOME"))
+func GitHubGet(uri string, secrets *Secrets) ([]byte, error) {
+	token, err := secrets.Token()
 
-	token, err := ioutil.ReadFile(credentialsPath)
 	if err != nil {
 		return nil, err
 	}
