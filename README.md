@@ -1,4 +1,5 @@
 # LGTM
+[![Build Status](https://travis-ci.org/brunograsselli/lgtm.svg?branch=master)](https://travis-ci.org/brunograsselli/lgtm)
 
 Command line tool to list Github pull requests waiting for review.
 Early stage project used to automate my workflow (and learn golang).
