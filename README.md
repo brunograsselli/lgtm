@@ -30,10 +30,6 @@ user: brunograsselli
 ```
 
 ## Usage
-
-```shell
-lgtm
-```
 ```
 Watch pull requests waiting for your review
 
