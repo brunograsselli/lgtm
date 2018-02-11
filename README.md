@@ -35,7 +35,7 @@ user: brunograsselli
 lgtm
 ```
 ```
-Watch pull requests waiting for your review.
+Watch pull requests waiting for your review
 
 Usage:
   lgtm [command]
@@ -44,6 +44,7 @@ Available Commands:
   help        Help about any command
   list        List pull requests waiting for your review
   login       Login to GitHub
+  logout      Logout
   open        Open a pull request
 
 Flags:
