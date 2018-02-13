@@ -43,6 +43,7 @@ Available Commands:
   login       Login to GitHub
   logout      Logout
   open        Open a pull request
+  repos       List watched repositories
 
 Flags:
       --config string   config file (default is $HOME/.lgtm.yml)
