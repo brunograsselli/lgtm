@@ -21,7 +21,7 @@ func List(showAll bool, secrets *Secrets, repoNames []string) error {
 		return nil
 	}
 
-	user := viper.GetString("user")
+	user := viper.GetString("username")
 	repoCh := make(chan Repo)
 
 	for _, repo := range repoNames {
