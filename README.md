@@ -27,7 +27,7 @@ Create the file `~/.lgtm.yml` with your GitHub user and the projects you would l
 repos:
   - brunograsselli/lgtm
   - brunograsslli/dotvim
-user: brunograsselli
+username: brunograsselli
 ```
 
 ## Usage
