@@ -11,6 +11,7 @@ import (
 
 type Repo struct {
 	PullRequests []PullRequest
+	Name         string
 	Error        error
 }
 
@@ -29,7 +30,7 @@ func List(showAll bool, secrets *Secrets, repoNames []string) error {
 
 	reposWithPrs := make(map[string][]PullRequest)
 
-	for _, name := range repoNames {
+	for range repoNames {
 		repo := <-repoCh
 
 		if repo.Error != nil {
@@ -37,7 +38,7 @@ func List(showAll bool, secrets *Secrets, repoNames []string) error {
 		}
 
 		if len(repo.PullRequests) > 0 {
-			reposWithPrs[name] = repo.PullRequests
+			reposWithPrs[repo.Name] = repo.PullRequests
 		}
 	}
 
@@ -82,7 +83,7 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh c
 		}
 	}
 
-	repoCh <- Repo{PullRequests: prs}
+	repoCh <- Repo{Name: repo, PullRequests: prs}
 }
 
 func write(repos map[string][]PullRequest) error {
