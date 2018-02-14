@@ -14,13 +14,12 @@ type Repo struct {
 	Error        error
 }
 
-func List(showAll bool, secrets *Secrets) error {
+func List(showAll bool, secrets *Secrets, repoNames []string) error {
 	if !secrets.CheckToken() {
 		fmt.Println("Please log in first (lgtm login)")
 		return nil
 	}
 
-	repoNames := viper.GetStringSlice("repos")
 	user := viper.GetString("user")
 	repoCh := make(chan Repo)
 
