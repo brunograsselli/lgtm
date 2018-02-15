@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/brunograsselli/lgtm"
+	"github.com/brunograsselli/lgtm/lgtm"
 	"github.com/spf13/cobra"
 )
 

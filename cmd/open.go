@@ -17,7 +17,7 @@ package cmd
 import (
 	"strconv"
 
-	"github.com/brunograsselli/lgtm"
+	"github.com/brunograsselli/lgtm/lgtm"
 	"github.com/spf13/cobra"
 )
 

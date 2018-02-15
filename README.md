@@ -12,11 +12,7 @@ Download it from https://github.com/brunograsselli/lgtm/releases .
 Alternatively, you can build it from the source with:
 
 ```shell
-git clone git@github.com:brunograsselli/lgtm.git
-cd lgtm
-make install
-make build
-./bin/lgtm
+go get github.com/brunograsselli/lgtm
 ```
 
 ## Configuration
