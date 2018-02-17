@@ -37,9 +37,9 @@ Available Commands:
   config      Show configuration
   help        Help about any command
   list        List pull requests waiting for your review
-  login       Login to GitHub
+  login       Login
   logout      Logout
-  open        Open a pull request
+  show        Show pull request on the browser
 
 Flags:
       --config string   config file (default is $HOME/.lgtm.yml)

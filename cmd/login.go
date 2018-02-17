@@ -7,8 +7,8 @@ import (
 
 var loginCmd = &cobra.Command{
 	Use:   "login",
-	Short: "Login to GitHub",
-	Long:  "Login to Github",
+	Short: "Login",
+	Long:  "Login",
 	Run: func(cmd *cobra.Command, args []string) {
 		secrets := &lgtm.Secrets{Path: secretsPath}
 
