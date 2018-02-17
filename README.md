@@ -34,12 +34,12 @@ Usage:
   lgtm [command]
 
 Available Commands:
+  config      Show configuration
   help        Help about any command
   list        List pull requests waiting for your review
   login       Login to GitHub
   logout      Logout
   open        Open a pull request
-  repos       List watched repositories
 
 Flags:
       --config string   config file (default is $HOME/.lgtm.yml)
