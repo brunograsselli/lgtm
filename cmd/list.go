@@ -19,9 +19,9 @@ var listCmd = &cobra.Command{
 		}
 
 		secrets := &lgtm.Secrets{Path: secretsPath}
-		repos := &lgtm.Repos{}
+		config := &lgtm.Config{}
 
-		err = lgtm.List(showAll, secrets, repos.All())
+		err = lgtm.List(showAll, secrets, config)
 
 		if err != nil {
 			fmt.Printf("An error occurred while processing your request:\n  %s\n", err.Error())

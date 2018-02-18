@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-
-	"github.com/spf13/viper"
 )
 
 type Repo struct {
@@ -15,17 +13,18 @@ type Repo struct {
 	Error        error
 }
 
-func List(showAll bool, secrets *Secrets, repoNames []string) error {
+func List(showAll bool, secrets *Secrets, config *Config) error {
 	if !secrets.CheckToken() {
 		fmt.Println("Please log in first (lgtm login)")
 		return nil
 	}
 
-	user := viper.GetString("username")
 	repoCh := make(chan Repo)
 
+	repoNames := config.Repos()
+
 	for _, repo := range repoNames {
-		go listRepo(repo, user, showAll, secrets, repoCh)
+		go listRepo(repo, config.UserName(), showAll, secrets, repoCh)
 	}
 
 	reposWithPrs := make(map[string][]PullRequest)

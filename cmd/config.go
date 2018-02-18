@@ -14,10 +14,10 @@ var configCmd = &cobra.Command{
 	Short: "Show configuration",
 	Long:  "Show configuration",
 	Run: func(cmd *cobra.Command, args []string) {
-		repos := &lgtm.Repos{}
+		config := &lgtm.Config{}
 		secrets := &lgtm.Secrets{Path: secretsPath}
 
-		showConfig(repos, secrets)
+		showConfig(config, secrets)
 	},
 }
 
@@ -25,9 +25,9 @@ func init() {
 	rootCmd.AddCommand(configCmd)
 }
 
-func showConfig(repos *lgtm.Repos, secrets *lgtm.Secrets) {
-	all := repos.All()
-	sort.Strings(all)
+func showConfig(config *lgtm.Config, secrets *lgtm.Secrets) {
+	repos := config.Repos()
+	sort.Strings(repos)
 	token, _ := secrets.Token()
 
 	fmt.Printf("User: %s\n", viper.GetString("username"))
@@ -40,7 +40,7 @@ func showConfig(repos *lgtm.Repos, secrets *lgtm.Secrets) {
 
 	fmt.Println("Repositories:")
 
-	for _, repo := range all {
+	for _, repo := range repos {
 		fmt.Printf("  - %s\n", repo)
 	}
 }
