@@ -6,7 +6,6 @@ import (
 
 	"github.com/brunograsselli/lgtm/lgtm"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var configCmd = &cobra.Command{
@@ -30,7 +29,7 @@ func showConfig(config *lgtm.Config, secrets *lgtm.Secrets) {
 	sort.Strings(repos)
 	token, _ := secrets.Token()
 
-	fmt.Printf("User: %s\n", viper.GetString("username"))
+	fmt.Printf("User: %s\n", config.UserName())
 
 	if token != nil {
 		fmt.Println("Logged In: yes")
