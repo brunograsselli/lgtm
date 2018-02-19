@@ -21,10 +21,10 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 
 	repoCh := make(chan Repo)
 
-	repoNames := config.Repos()
+	repoNames := config.Repos
 
 	for _, repo := range repoNames {
-		go listRepo(repo, config.UserName(), showAll, secrets, repoCh)
+		go listRepo(repo, config.UserName, showAll, secrets, repoCh)
 	}
 
 	reposWithPrs := make(map[string][]PullRequest)

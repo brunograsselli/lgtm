@@ -13,7 +13,7 @@ var configCmd = &cobra.Command{
 	Short: "Show configuration",
 	Long:  "Show configuration",
 	Run: func(cmd *cobra.Command, args []string) {
-		config := &lgtm.Config{}
+		config := lgtm.NewConfig()
 		secrets := &lgtm.Secrets{Path: secretsPath}
 
 		showConfig(config, secrets)
@@ -25,11 +25,11 @@ func init() {
 }
 
 func showConfig(config *lgtm.Config, secrets *lgtm.Secrets) {
-	repos := config.Repos()
+	repos := config.Repos
 	sort.Strings(repos)
 	token, _ := secrets.Token()
 
-	fmt.Printf("User: %s\n", config.UserName())
+	fmt.Printf("User: %s\n", config.UserName)
 
 	if token != nil {
 		fmt.Println("Logged In: yes")

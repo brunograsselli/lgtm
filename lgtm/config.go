@@ -5,12 +5,13 @@ import (
 )
 
 type Config struct {
+	UserName string
+	Repos    []string
 }
 
-func (c *Config) Repos() []string {
-	return viper.GetStringSlice("repos")
-}
-
-func (c *Config) UserName() string {
-	return viper.GetString("username")
+func NewConfig() *Config {
+	return &Config{
+		UserName: viper.GetString("username"),
+		Repos:    viper.GetStringSlice("repos"),
+	}
 }

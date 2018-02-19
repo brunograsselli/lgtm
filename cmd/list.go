@@ -19,7 +19,7 @@ var listCmd = &cobra.Command{
 		}
 
 		secrets := &lgtm.Secrets{Path: secretsPath}
-		config := &lgtm.Config{}
+		config := lgtm.NewConfig()
 
 		err = lgtm.List(showAll, secrets, config)
 
