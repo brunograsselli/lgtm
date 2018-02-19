@@ -17,13 +17,19 @@ go get github.com/brunograsselli/lgtm
 
 ## Configuration
 
-Create the file `~/.lgtm.yml` with your GitHub user and the projects you would like to watch.
+Login to GitHub:
+
+```shell
+lgtm login
+```
+
+Edit the file `~/.lgtm.yml` and add the repositories you would like to watch:
 
 ```yaml
+username: brunograsselli
 repos:
   - brunograsselli/lgtm
   - brunograsslli/dotvim
-username: brunograsselli
 ```
 
 ## Usage
@@ -50,4 +56,3 @@ Use "lgtm [command] --help" for more information about a command.
 
 ## TODO
 * Encrypt saved token
-* Save user from login

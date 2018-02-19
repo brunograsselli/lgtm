@@ -11,8 +11,9 @@ var loginCmd = &cobra.Command{
 	Long:  "Login",
 	Run: func(cmd *cobra.Command, args []string) {
 		secrets := &lgtm.Secrets{Path: secretsPath}
+		config := lgtm.NewConfig()
 
-		err := lgtm.Login(secrets)
+		err := lgtm.Login(secrets, config)
 
 		if err != nil {
 			panic(err)

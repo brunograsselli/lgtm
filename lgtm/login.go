@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func Login(secrets *Secrets) error {
+func Login(secrets *Secrets, config *Config) error {
 	token, _ := secrets.Token()
 
 	if token != nil {
@@ -57,6 +57,12 @@ func Login(secrets *Secrets) error {
 	json.Unmarshal(body, &auth)
 
 	err = secrets.SaveToken(auth.Token)
+
+	if err != nil {
+		return err
+	}
+
+	err = config.SaveUserName(user)
 
 	if err != nil {
 		return err
