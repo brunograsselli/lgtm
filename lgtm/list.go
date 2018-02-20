@@ -33,7 +33,9 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 		repo := <-repoCh
 
 		if repo.Error != nil {
-			return repo.Error
+			errWithRepo := fmt.Errorf("%s (repository: %s)", repo.Error.Error(), repo.Name)
+
+			return errWithRepo
 		}
 
 		if len(repo.PullRequests) > 0 {
@@ -53,7 +55,7 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh c
 	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo), secrets)
 
 	if err != nil {
-		repoCh <- Repo{Error: err}
+		repoCh <- Repo{Error: err, Name: repo}
 		return
 	}
 
