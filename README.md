@@ -33,10 +33,15 @@ repos:
 ```
 
 ## Usage
+```shell
+lgtm
 ```
+
+## Help
 Watch pull requests waiting for your review
 
 Usage:
+  lgtm [flags]
   lgtm [command]
 
 Available Commands:
@@ -45,9 +50,9 @@ Available Commands:
   list        List pull requests waiting for your review
   login       Login
   logout      Logout
-  show        Show pull request on the browser
 
 Flags:
+  -a, --all             List all open pull requests
       --config string   config file (default is $HOME/.lgtm.yml)
   -h, --help            help for lgtm
 
