@@ -48,9 +48,9 @@ Usage:
 Available Commands:
   config      Show configuration
   help        Help about any command
-  list        List pull requests waiting for your review
   login       Login
   logout      Logout
+  show        Show pull request on the browser
 
 Flags:
   -a, --all             List all open pull requests
