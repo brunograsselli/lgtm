@@ -38,6 +38,7 @@ $ lgtm
 ```
 
 ## Help
+```
 Watch pull requests waiting for your review
 
 Usage:
