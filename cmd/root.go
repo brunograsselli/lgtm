@@ -30,6 +30,7 @@ var rootCmd = &cobra.Command{
 
 		if err != nil {
 			fmt.Printf("An error occurred while processing your request:\n  %s\n", err.Error())
+			os.Exit(1)
 		}
 	},
 }
