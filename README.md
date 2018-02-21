@@ -12,7 +12,7 @@ Download it from https://github.com/brunograsselli/lgtm/releases .
 Alternatively, you can build it from the source with:
 
 ```shell
-go get github.com/brunograsselli/lgtm
+$ go get github.com/brunograsselli/lgtm
 ```
 
 ## Configuration
@@ -20,7 +20,7 @@ go get github.com/brunograsselli/lgtm
 Login to GitHub:
 
 ```shell
-lgtm login
+$ lgtm login
 ```
 
 Edit the file `~/.lgtm.yml` and add the repositories you would like to watch:
@@ -34,7 +34,7 @@ repos:
 
 ## Usage
 ```shell
-lgtm
+$ lgtm
 ```
 
 ## Help
