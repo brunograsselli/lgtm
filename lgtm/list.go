@@ -80,11 +80,33 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh c
 		}
 
 		if includePR {
+			reviews, err := getReviews(repo, pr, secrets)
+
+			pr.Reviews = reviews
+
+			if err != nil {
+				repoCh <- Repo{Error: err, Name: repo}
+				return
+			}
+
 			prs = append(prs, pr)
 		}
 	}
 
 	repoCh <- Repo{Name: repo, PullRequests: prs}
+}
+
+func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error) {
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls/%d/reviews", repo, pr.Number), secrets)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var reviews []Review
+	json.Unmarshal([]byte(body), &reviews)
+
+	return reviews, nil
 }
 
 func write(repos map[string][]PullRequest) error {
@@ -115,7 +137,13 @@ func print(repos map[string][]PullRequest) {
 		out = append(out, fmt.Sprintf("%s:", repo))
 
 		for _, pr := range prs {
-			out = append(out, fmt.Sprintf("  %d\t%s\t%s", pr.Number, pr.User.Login, pr.Title))
+			states := []string{}
+
+			for _, review := range pr.Reviews {
+				states = append(states, review.State)
+			}
+
+			out = append(out, fmt.Sprintf("  %d\t%s\t%s\t%s", pr.Number, pr.User.Login, pr.Title, states))
 		}
 
 		out = append(out, "")
