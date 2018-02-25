@@ -46,11 +46,12 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	}
 
 	err := write(reposWithPrs)
-	if err != nil {
-		return err
+
+	if err == nil {
+		print(reposWithPrs)
 	}
-	print(reposWithPrs)
-	return nil
+
+	return err
 }
 
 func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh chan Repo) {
