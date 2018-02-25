@@ -171,7 +171,15 @@ func print(repos map[string][]PullRequest) {
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Repository", "Number", "User", "Title", "State"})
-	table.AppendBulk(out)
+	table.SetColWidth(100)
 	table.SetBorder(false)
+	table.SetColumnAlignment([]int{
+		tablewriter.ALIGN_DEFAULT,
+		tablewriter.ALIGN_DEFAULT,
+		tablewriter.ALIGN_DEFAULT,
+		tablewriter.ALIGN_DEFAULT,
+		tablewriter.ALIGN_CENTER,
+	})
+	table.AppendBulk(out)
 	table.Render()
 }
