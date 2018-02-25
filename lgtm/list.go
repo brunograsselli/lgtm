@@ -54,21 +54,21 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 }
 
 func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh chan Repo) {
-	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls", repo), secrets)
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls?sort=created&direction=asc", repo), secrets)
 
 	if err != nil {
 		repoCh <- Repo{Error: err, Name: repo}
 		return
 	}
 
-	var pullRequests []PullRequest
-	json.Unmarshal([]byte(body), &pullRequests)
+	var openPrs []PullRequest
+	json.Unmarshal([]byte(body), &openPrs)
 
-	prs := []PullRequest{}
+	filteredPrs := []PullRequest{}
 
 	var includePR bool
 
-	for _, pr := range pullRequests {
+	for _, pr := range openPrs {
 		includePR = false
 
 		if showAll {
@@ -91,11 +91,11 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh c
 				return
 			}
 
-			prs = append(prs, pr)
+			filteredPrs = append(filteredPrs, pr)
 		}
 	}
 
-	repoCh <- Repo{Name: repo, PullRequests: prs}
+	repoCh <- Repo{Name: repo, PullRequests: filteredPrs}
 }
 
 func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error) {
