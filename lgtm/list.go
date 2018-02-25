@@ -156,7 +156,7 @@ func print(repos map[string][]PullRequest) {
 				state = "❌"
 			} else if approvals > 1 {
 				state = "✅"
-			} else if comments > 0 || approvals == 0 {
+			} else if comments > 0 || approvals == 1 {
 				state = "💬"
 			}
 
