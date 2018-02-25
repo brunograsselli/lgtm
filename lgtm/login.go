@@ -64,12 +64,11 @@ func Login(secrets *Secrets, config *Config) error {
 
 	err = config.SaveUserName(user)
 
-	if err != nil {
-		return err
+	if err == nil {
+		fmt.Println("Success!")
 	}
 
-	fmt.Println("Success!")
-	return nil
+	return err
 }
 
 func askForCredentials() (string, string, error) {
