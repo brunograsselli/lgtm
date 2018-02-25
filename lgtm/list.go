@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strings"
+	"os"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 type Repo struct {
@@ -131,23 +133,45 @@ func print(repos map[string][]PullRequest) {
 		return
 	}
 
-	out := []string{}
+	out := [][]string{}
 
 	for repo, prs := range repos {
-		out = append(out, fmt.Sprintf("%s:", repo))
-
 		for _, pr := range prs {
 			states := []string{}
 
+			rejections := 0
+			approvals := 0
+			comments := 0
+
 			for _, review := range pr.Reviews {
 				states = append(states, review.State)
+				switch review.State {
+				case "APPROVED":
+					approvals += 1
+				case "CHANGES_REQUESTED":
+					rejections += 1
+				case "COMMENTED":
+					comments += 1
+				}
 			}
 
-			out = append(out, fmt.Sprintf("  %d\t%s\t%s\t%s", pr.Number, pr.User.Login, pr.Title, states))
-		}
+			var state string
 
-		out = append(out, "")
+			if rejections > 0 {
+				state = "❌"
+			} else if approvals > 1 {
+				state = "✅"
+			} else if comments > 0 || approvals == 0 {
+				state = "💬"
+			}
+
+			out = append(out, []string{repo, fmt.Sprintf("%d", pr.Number), pr.User.Login, pr.Title, state})
+		}
 	}
 
-	fmt.Println(strings.Join(out[0:len(out)-1], "\n"))
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Repository", "Number", "User", "Title", "State"})
+	table.AppendBulk(out)
+	table.SetBorder(false)
+	table.Render()
 }
