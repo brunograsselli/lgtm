@@ -17,8 +17,11 @@ type Repo struct {
 
 func List(showAll bool, secrets *Secrets, config *Config) error {
 	if !secrets.CheckToken() {
-		fmt.Println("Please log in first (lgtm login)")
-		return nil
+		err := Login(secrets, config)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	repoCh := make(chan Repo)

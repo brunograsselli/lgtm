@@ -3,6 +3,7 @@ package lgtm
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -49,8 +50,7 @@ func Login(secrets *Secrets, config *Config) error {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode != 201 {
-		fmt.Println(string(body))
-		return nil
+		return errors.New(string(body))
 	}
 
 	var auth Authorization
@@ -65,7 +65,7 @@ func Login(secrets *Secrets, config *Config) error {
 	err = config.SaveUserName(user)
 
 	if err == nil {
-		fmt.Println("Success!")
+		fmt.Println("You are logged in!")
 	}
 
 	return err

@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/brunograsselli/lgtm/lgtm"
 	"github.com/spf13/cobra"
 )
@@ -16,7 +19,8 @@ var loginCmd = &cobra.Command{
 		err := lgtm.Login(secrets, config)
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	},
 }
