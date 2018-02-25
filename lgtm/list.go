@@ -118,13 +118,7 @@ func write(repos map[string][]PullRequest) error {
 		return err
 	}
 
-	err = ioutil.WriteFile("/tmp/lgtm.json", c, 0644)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ioutil.WriteFile("/tmp/lgtm.json", c, 0644)
 }
 
 func print(repos map[string][]PullRequest) {
