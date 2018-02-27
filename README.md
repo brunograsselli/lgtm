@@ -29,7 +29,7 @@ Edit the file `~/.lgtm.yml` and add the repositories you would like to watch:
 username: brunograsselli
 repos:
   - brunograsselli/lgtm
-  - brunograsslli/dotvim
+  - brunograsselli/dotvim
 ```
 
 ## Usage
