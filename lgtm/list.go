@@ -48,7 +48,7 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 		}
 	}
 
-	err := write(reposWithPrs)
+	err := writeTempFile(reposWithPrs)
 
 	if err == nil {
 		print(reposWithPrs)
@@ -115,7 +115,7 @@ func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error)
 	return reviews, nil
 }
 
-func write(repos map[string][]PullRequest) error {
+func writeTempFile(repos map[string][]PullRequest) error {
 	c, err := json.Marshal(repos)
 
 	if err != nil {
