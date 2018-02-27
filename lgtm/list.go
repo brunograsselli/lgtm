@@ -103,7 +103,7 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh c
 }
 
 func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error) {
-	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls/%d/reviews", repo, pr.Number), secrets)
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls/%d/reviews?sort=created&direction=asc", repo, pr.Number), secrets)
 
 	if err != nil {
 		return nil, err
@@ -135,15 +135,19 @@ func print(repos map[string][]PullRequest) {
 
 	for repo, prs := range repos {
 		for _, pr := range prs {
-			states := []string{}
+			states := make(map[string]string)
+
+			// Consider only the last review of each user
+			for _, review := range pr.Reviews {
+				states[review.User.Login] = review.State
+			}
 
 			rejections := 0
 			approvals := 0
 			comments := 0
 
-			for _, review := range pr.Reviews {
-				states = append(states, review.State)
-				switch review.State {
+			for _, state := range states {
+				switch state {
 				case "APPROVED":
 					approvals += 1
 				case "CHANGES_REQUESTED":
