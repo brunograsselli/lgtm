@@ -51,7 +51,7 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	err := writeTempFile(reposWithPrs)
 
 	if err == nil {
-		print(reposWithPrs)
+		printList(reposWithPrs)
 	}
 
 	return err
@@ -125,7 +125,7 @@ func writeTempFile(repos map[string][]PullRequest) error {
 	return ioutil.WriteFile("/tmp/lgtm.json", c, 0644)
 }
 
-func print(repos map[string][]PullRequest) {
+func printList(repos map[string][]PullRequest) {
 	if len(repos) == 0 {
 		fmt.Println("You are up to date!")
 		return
@@ -135,39 +135,9 @@ func print(repos map[string][]PullRequest) {
 
 	for repo, prs := range repos {
 		for _, pr := range prs {
-			states := make(map[string]string)
+			state := computeState(pr)
 
-			// Consider only the last review of each user
-			for _, review := range pr.Reviews {
-				states[review.User.Login] = review.State
-			}
-
-			rejections := 0
-			approvals := 0
-			comments := 0
-
-			for _, state := range states {
-				switch state {
-				case "APPROVED":
-					approvals += 1
-				case "CHANGES_REQUESTED":
-					rejections += 1
-				case "COMMENTED":
-					comments += 1
-				}
-			}
-
-			var state string
-
-			if rejections > 0 {
-				state = "❌"
-			} else if approvals > 1 {
-				state = "✅"
-			} else if comments > 0 || approvals == 1 {
-				state = "💬"
-			}
-
-			out = append(out, []string{repo, fmt.Sprintf("%d", pr.Number), pr.User.Login, pr.Title, state})
+			out = append(out, []string{repo, fmt.Sprint(pr.Number), pr.User.Login, pr.Title, state})
 		}
 	}
 
@@ -184,4 +154,38 @@ func print(repos map[string][]PullRequest) {
 	})
 	table.AppendBulk(out)
 	table.Render()
+}
+
+func computeState(pr PullRequest) string {
+	states := make(map[string]string)
+
+	// Consider only the last review of each user
+	for _, review := range pr.Reviews {
+		states[review.User.Login] = review.State
+	}
+
+	var rejections, approvals, comments int
+
+	for _, state := range states {
+		switch state {
+		case "APPROVED":
+			approvals += 1
+		case "CHANGES_REQUESTED":
+			rejections += 1
+		case "COMMENTED":
+			comments += 1
+		}
+	}
+
+	var state string
+
+	if rejections > 0 {
+		state = "❌"
+	} else if approvals > 1 {
+		state = "✅"
+	} else if comments > 0 || approvals == 1 {
+		state = "💬"
+	}
+
+	return state
 }
