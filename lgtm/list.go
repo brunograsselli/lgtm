@@ -34,7 +34,7 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			err, prs := listRepo(name, config.UserName, showAll, secrets)
+			prs, err := listRepo(name, config.UserName, showAll, secrets)
 			repoCh <- Repo{Error: err, Name: name, PullRequests: prs}
 		}()
 	}
@@ -63,15 +63,12 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	return err
 }
 
-func listRepo(repo string, user string, showAll bool, secrets *Secrets) (error, []PullRequest) {
-	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls?sort=created&direction=asc", repo), secrets)
+func listRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullRequest, error) {
+	openPrs, err := GitHubPullRequests(repo, secrets)
 
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
-
-	var openPrs []PullRequest
-	json.Unmarshal([]byte(body), &openPrs)
 
 	filteredPrs := []PullRequest{}
 
@@ -96,14 +93,14 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets) (error, 
 			pr.Reviews = reviews
 
 			if err != nil {
-				return err, nil
+				return nil, err
 			}
 
 			filteredPrs = append(filteredPrs, pr)
 		}
 	}
 
-	return nil, filteredPrs
+	return filteredPrs, nil
 }
 
 func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error) {

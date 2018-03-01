@@ -2,6 +2,7 @@ package lgtm
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -64,4 +65,17 @@ func GitHubAuthorize(user string, password string, fingerprint string, otpCode s
 
 	client := &http.Client{}
 	return client.Do(req)
+}
+
+func GitHubPullRequests(repository string, secrets *Secrets) ([]PullRequest, error) {
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls?sort=created&direction=asc", repository), secrets)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var pullRequests []PullRequest
+	json.Unmarshal([]byte(body), &pullRequests)
+
+	return pullRequests, nil
 }
