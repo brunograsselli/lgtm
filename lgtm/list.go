@@ -16,6 +16,12 @@ type Repo struct {
 	Error        error
 }
 
+type ReviewsWithError struct {
+	Reviews           []Review
+	Error             error
+	PullRequestNumber int32
+}
+
 func List(showAll bool, secrets *Secrets, config *Config) error {
 	if !secrets.CheckToken() {
 		err := Login(secrets, config)
@@ -32,15 +38,17 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 
 	for _, name := range repoNames {
 		wg.Add(1)
-		go func() {
+		go func(name string) {
 			defer wg.Done()
-			prs, err := listRepo(name, config.UserName, showAll, secrets)
+			prs, err := fetchRepo(name, config.UserName, showAll, secrets)
 			repoCh <- Repo{Error: err, Name: name, PullRequests: prs}
-		}()
+		}(name)
 	}
 
-	wg.Wait()
-	close(repoCh)
+	go func() {
+		wg.Wait()
+		close(repoCh)
+	}()
 
 	reposWithPrs := make(map[string][]PullRequest)
 
@@ -63,7 +71,7 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	return err
 }
 
-func listRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullRequest, error) {
+func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullRequest, error) {
 	openPrs, err := GitHubPullRequests(repo, secrets)
 
 	if err != nil {
@@ -73,6 +81,8 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullR
 	filteredPrs := []PullRequest{}
 
 	var includePR bool
+	var wg sync.WaitGroup
+	reviewsCh := make(chan ReviewsWithError, 5)
 
 	for _, pr := range openPrs {
 		includePR = false
@@ -88,19 +98,42 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullR
 		}
 
 		if includePR {
-			reviews, err := GitHubReviews(repo, pr.Number, secrets)
+			wg.Add(1)
 
-			if err != nil {
-				return nil, err
-			}
+			go func(number int32) {
+				defer wg.Done()
+				reviews, err := GitHubReviews(repo, number, secrets)
 
-			pr.Reviews = reviews
+				reviewsCh <- ReviewsWithError{Error: err, Reviews: reviews, PullRequestNumber: number}
+			}(pr.Number)
 
 			filteredPrs = append(filteredPrs, pr)
 		}
 	}
 
-	return filteredPrs, nil
+	go func() {
+		wg.Wait()
+		close(reviewsCh)
+	}()
+
+	reviews := make(map[int32][]Review)
+
+	for r := range reviewsCh {
+		if r.Error != nil {
+			return nil, r.Error
+		}
+
+		reviews[r.PullRequestNumber] = r.Reviews
+	}
+
+	prsWithReviews := []PullRequest{}
+
+	for _, pr := range filteredPrs {
+		pr.Reviews = reviews[pr.Number]
+		prsWithReviews = append(prsWithReviews, pr)
+	}
+
+	return prsWithReviews, nil
 }
 
 func writeTempFile(repos map[string][]PullRequest) error {
