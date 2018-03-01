@@ -88,32 +88,19 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullR
 		}
 
 		if includePR {
-			reviews, err := getReviews(repo, pr, secrets)
-
-			pr.Reviews = reviews
+			reviews, err := GitHubReviews(repo, pr.Number, secrets)
 
 			if err != nil {
 				return nil, err
 			}
+
+			pr.Reviews = reviews
 
 			filteredPrs = append(filteredPrs, pr)
 		}
 	}
 
 	return filteredPrs, nil
-}
-
-func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error) {
-	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls/%d/reviews?sort=created&direction=asc", repo, pr.Number), secrets)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var reviews []Review
-	json.Unmarshal([]byte(body), &reviews)
-
-	return reviews, nil
 }
 
 func writeTempFile(repos map[string][]PullRequest) error {

@@ -79,3 +79,16 @@ func GitHubPullRequests(repository string, secrets *Secrets) ([]PullRequest, err
 
 	return pullRequests, nil
 }
+
+func GitHubReviews(repository string, pullRequestNumber int32, secrets *Secrets) ([]Review, error) {
+	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls/%d/reviews?sort=created&direction=asc", repository, pullRequestNumber), secrets)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var reviews []Review
+	json.Unmarshal([]byte(body), &reviews)
+
+	return reviews, nil
+}
