@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sync"
 
 	"github.com/olekukonko/tablewriter"
 )
@@ -24,23 +25,28 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 		}
 	}
 
-	repoCh := make(chan Repo)
-
 	repoNames := config.Repos
 
+	repoCh := make(chan Repo, len(repoNames))
+	var wg sync.WaitGroup
+
 	for _, repo := range repoNames {
-		go listRepo(repo, config.UserName, showAll, secrets, repoCh)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err, prs := listRepo(repo, config.UserName, showAll, secrets)
+			repoCh <- Repo{Error: err, Name: repo, PullRequests: prs}
+		}()
 	}
+
+	wg.Wait()
+	close(repoCh)
 
 	reposWithPrs := make(map[string][]PullRequest)
 
-	for range repoNames {
-		repo := <-repoCh
-
+	for repo := range repoCh {
 		if repo.Error != nil {
-			errWithRepo := fmt.Errorf("%s (repository: %s)", repo.Error.Error(), repo.Name)
-
-			return errWithRepo
+			return fmt.Errorf("%s (repository: %s)", repo.Error.Error(), repo.Name)
 		}
 
 		if len(repo.PullRequests) > 0 {
@@ -57,12 +63,11 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	return err
 }
 
-func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh chan Repo) {
+func listRepo(repo string, user string, showAll bool, secrets *Secrets) (error, []PullRequest) {
 	body, err := GitHubGet(fmt.Sprintf("/repos/%s/pulls?sort=created&direction=asc", repo), secrets)
 
 	if err != nil {
-		repoCh <- Repo{Error: err, Name: repo}
-		return
+		return err, nil
 	}
 
 	var openPrs []PullRequest
@@ -91,15 +96,14 @@ func listRepo(repo string, user string, showAll bool, secrets *Secrets, repoCh c
 			pr.Reviews = reviews
 
 			if err != nil {
-				repoCh <- Repo{Error: err, Name: repo}
-				return
+				return err, nil
 			}
 
 			filteredPrs = append(filteredPrs, pr)
 		}
 	}
 
-	repoCh <- Repo{Name: repo, PullRequests: filteredPrs}
+	return nil, filteredPrs
 }
 
 func getReviews(repo string, pr PullRequest, secrets *Secrets) ([]Review, error) {
