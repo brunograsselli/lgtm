@@ -30,12 +30,12 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	repoCh := make(chan Repo, len(repoNames))
 	var wg sync.WaitGroup
 
-	for _, repo := range repoNames {
+	for _, name := range repoNames {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			err, prs := listRepo(repo, config.UserName, showAll, secrets)
-			repoCh <- Repo{Error: err, Name: repo, PullRequests: prs}
+			err, prs := listRepo(name, config.UserName, showAll, secrets)
+			repoCh <- Repo{Error: err, Name: name, PullRequests: prs}
 		}()
 	}
 
