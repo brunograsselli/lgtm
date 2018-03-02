@@ -64,3 +64,4 @@ Use "lgtm [command] --help" for more information about a command.
 * Encrypt saved token
 * Delete github token when logged out (from github)
 * Have a fixed order of repositories in output
+* Use github's graphql api
