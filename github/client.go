@@ -16,6 +16,10 @@ const (
 	authURI         = "/authorizations"
 	pullRequestsURI = "/repos/%s/pulls?sort=created&direction=asc"
 	reviewsURI      = "/repos/%s/pulls/%d/reviews?sort=created&direction=asc"
+
+	httpStatusOk           = 200
+	httpStatusCreated      = 201
+	httpStatusUnauthorized = 401
 )
 
 var Need2FAErr = errors.New("need 2FA")
@@ -66,13 +70,13 @@ func authorizeWithHeaders(user string, password string, fingerprint string, head
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 401 && resp.Header["X-Github-Otp"] != nil {
+	if resp.StatusCode == httpStatusUnauthorized && resp.Header["X-Github-Otp"] != nil {
 		return nil, Need2FAErr
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode != 201 {
+	if resp.StatusCode != httpStatusCreated {
 		return nil, errors.New(string(body))
 	}
 
@@ -136,7 +140,7 @@ func (c *Client) get(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != httpStatusOk {
 		return nil, fmt.Errorf("Unexpected response code %d", resp.StatusCode)
 	}
 
