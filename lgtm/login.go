@@ -2,10 +2,7 @@ package lgtm
 
 import (
 	"bufio"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -30,42 +27,27 @@ func Login(secrets *Secrets, config *Config) error {
 
 	fingerprint := ksuid.New().String()
 
-	resp, err := github.Authorize(user, password, fingerprint, "")
-
+	client, err := github.Authorize(user, password, fingerprint)
 	if err != nil {
-		return err
-	}
+		switch err {
+		case github.Need2FAErr:
+			code := askFor2FACode()
 
-	if resp.StatusCode == 401 && resp.Header["X-Github-Otp"] != nil {
-		code := askFor2FACode()
+			client, err = github.AuthorizeWith2FA(user, password, fingerprint, code)
 
-		resp, err = github.Authorize(user, password, fingerprint, code)
-
-		if err != nil {
+			if err != nil {
+				return err
+			}
+		default:
 			return err
 		}
 	}
 
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if resp.StatusCode != 201 {
-		return errors.New(string(body))
-	}
-
-	var auth Authorization
-	json.Unmarshal(body, &auth)
-
-	err = secrets.SaveToken(auth.Token)
-
-	if err != nil {
+	if err := secrets.SaveToken(client.GetToken()); err != nil {
 		return err
 	}
 
-	err = config.SaveUserName(user)
-
-	if err == nil {
+	if err := config.SaveUserName(user); err != nil {
 		fmt.Println("You are logged in!")
 	}
 

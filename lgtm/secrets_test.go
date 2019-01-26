@@ -53,7 +53,7 @@ func TestCheckWhenFileIsNotPresent(t *testing.T) {
 func TestSaveToken(t *testing.T) {
 	s := &Secrets{Path: path}
 
-	err := s.SaveToken("abc")
+	err := s.SaveToken([]byte("abc"))
 
 	if err != nil {
 		t.Error(err)
