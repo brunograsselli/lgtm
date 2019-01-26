@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+
+	"github.com/brunograsselli/lgtm/github"
 )
 
 type Browser struct {
@@ -24,7 +26,7 @@ func (b *Browser) Open(number int32) error {
 		return err
 	}
 
-	var repos map[string][]PullRequest
+	var repos map[string][]github.PullRequest
 
 	json.Unmarshal(c, &repos)
 

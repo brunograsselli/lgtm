@@ -7,17 +7,18 @@ import (
 	"os"
 	"sync"
 
+	"github.com/brunograsselli/lgtm/github"
 	"github.com/olekukonko/tablewriter"
 )
 
 type Repo struct {
-	PullRequests []PullRequest
+	PullRequests []github.PullRequest
 	Name         string
 	Error        error
 }
 
 type ReviewsWithError struct {
-	Reviews           []Review
+	Reviews           []github.Review
 	Error             error
 	PullRequestNumber int32
 }
@@ -50,7 +51,7 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 		close(repoCh)
 	}()
 
-	reposWithPrs := make(map[string][]PullRequest)
+	reposWithPrs := make(map[string][]github.PullRequest)
 
 	for repo := range repoCh {
 		if repo.Error != nil {
@@ -71,14 +72,19 @@ func List(showAll bool, secrets *Secrets, config *Config) error {
 	return err
 }
 
-func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]PullRequest, error) {
-	openPrs, err := GitHubPullRequests(repo, secrets)
-
+func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]github.PullRequest, error) {
+	token, err := secrets.Token()
 	if err != nil {
 		return nil, err
 	}
 
-	filteredPrs := []PullRequest{}
+	cli := github.NewClient(token)
+	openPrs, err := cli.PullRequests(repo)
+	if err != nil {
+		return nil, err
+	}
+
+	filteredPrs := []github.PullRequest{}
 
 	var includePR bool
 	var wg sync.WaitGroup
@@ -102,7 +108,7 @@ func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]Pull
 
 			go func(number int32) {
 				defer wg.Done()
-				reviews, err := GitHubReviews(repo, number, secrets)
+				reviews, err := cli.Reviews(repo, number)
 
 				reviewsCh <- ReviewsWithError{Error: err, Reviews: reviews, PullRequestNumber: number}
 			}(pr.Number)
@@ -116,7 +122,7 @@ func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]Pull
 		close(reviewsCh)
 	}()
 
-	reviews := make(map[int32][]Review)
+	reviews := make(map[int32][]github.Review)
 
 	for r := range reviewsCh {
 		if r.Error != nil {
@@ -126,7 +132,7 @@ func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]Pull
 		reviews[r.PullRequestNumber] = r.Reviews
 	}
 
-	prsWithReviews := []PullRequest{}
+	prsWithReviews := []github.PullRequest{}
 
 	for _, pr := range filteredPrs {
 		pr.Reviews = reviews[pr.Number]
@@ -136,7 +142,7 @@ func fetchRepo(repo string, user string, showAll bool, secrets *Secrets) ([]Pull
 	return prsWithReviews, nil
 }
 
-func writeTempFile(repos map[string][]PullRequest) error {
+func writeTempFile(repos map[string][]github.PullRequest) error {
 	c, err := json.Marshal(repos)
 
 	if err != nil {
@@ -146,7 +152,7 @@ func writeTempFile(repos map[string][]PullRequest) error {
 	return ioutil.WriteFile("/tmp/lgtm.json", c, 0644)
 }
 
-func printList(repos map[string][]PullRequest) {
+func printList(repos map[string][]github.PullRequest) {
 	if len(repos) == 0 {
 		fmt.Println("You are up to date!")
 		return
@@ -177,7 +183,7 @@ func printList(repos map[string][]PullRequest) {
 	table.Render()
 }
 
-func computeState(pr PullRequest) string {
+func computeState(pr github.PullRequest) string {
 	states := make(map[string]string)
 
 	// Consider only the last review of each user

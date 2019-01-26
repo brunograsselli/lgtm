@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/brunograsselli/lgtm/github"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -29,7 +30,7 @@ func Login(secrets *Secrets, config *Config) error {
 
 	fingerprint := ksuid.New().String()
 
-	resp, err := GitHubAuthorize(user, password, fingerprint, "")
+	resp, err := github.Authorize(user, password, fingerprint, "")
 
 	if err != nil {
 		return err
@@ -38,7 +39,7 @@ func Login(secrets *Secrets, config *Config) error {
 	if resp.StatusCode == 401 && resp.Header["X-Github-Otp"] != nil {
 		code := askFor2FACode()
 
-		resp, err = GitHubAuthorize(user, password, fingerprint, code)
+		resp, err = github.Authorize(user, password, fingerprint, code)
 
 		if err != nil {
 			return err
