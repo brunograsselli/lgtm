@@ -18,17 +18,14 @@ var rootCmd = &cobra.Command{
 	Long:  "Watch pull requests waiting for your review",
 	Run: func(cmd *cobra.Command, args []string) {
 		showAll, err := cmd.Flags().GetBool("all")
-
 		if err != nil {
 			panic(err)
 		}
 
-		secrets := &lgtm.Secrets{Path: secretsPath}
+		secrets := lgtm.NewSecrets(secretsPath)
 		config := lgtm.NewConfig()
 
-		err = lgtm.List(showAll, secrets, config)
-
-		if err != nil {
+		if err := lgtm.List(showAll, secrets, config); err != nil {
 			fmt.Printf("An error occurred while processing your request:\n  %s\n", err.Error())
 			os.Exit(1)
 		}

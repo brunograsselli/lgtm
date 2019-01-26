@@ -14,7 +14,7 @@ var configCmd = &cobra.Command{
 	Long:  "Show configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := lgtm.NewConfig()
-		secrets := &lgtm.Secrets{Path: secretsPath}
+		secrets := lgtm.NewSecrets(secretsPath)
 
 		showConfig(config, secrets)
 	},

@@ -6,15 +6,19 @@ import (
 )
 
 type Secrets struct {
-	Path string
+	path string
+}
+
+func NewSecrets(path string) *Secrets {
+	return &Secrets{path: path}
 }
 
 func (s *Secrets) Token() ([]byte, error) {
-	return ioutil.ReadFile(s.Path)
+	return ioutil.ReadFile(s.path)
 }
 
 func (s *Secrets) CheckToken() bool {
-	if _, err := os.Stat(s.Path); os.IsNotExist(err) {
+	if _, err := os.Stat(s.path); os.IsNotExist(err) {
 		return false
 	}
 
@@ -22,13 +26,13 @@ func (s *Secrets) CheckToken() bool {
 }
 
 func (s *Secrets) SaveToken(token []byte) error {
-	return ioutil.WriteFile(s.Path, token, 0644)
+	return ioutil.WriteFile(s.path, token, 0644)
 }
 
 func (s *Secrets) DeleteToken() error {
-	if _, err := os.Stat(s.Path); os.IsNotExist(err) {
+	if _, err := os.Stat(s.path); os.IsNotExist(err) {
 		return nil
 	}
 
-	return os.Remove(s.Path)
+	return os.Remove(s.path)
 }

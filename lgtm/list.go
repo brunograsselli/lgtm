@@ -25,9 +25,7 @@ type ReviewsWithError struct {
 
 func List(showAll bool, secrets *Secrets, config *Config) error {
 	if !secrets.CheckToken() {
-		err := Login(secrets, config)
-
-		if err != nil {
+		if err := Login(secrets, config); err != nil {
 			return err
 		}
 	}

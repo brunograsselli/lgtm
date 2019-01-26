@@ -13,7 +13,6 @@ var showCmd = &cobra.Command{
 	Long:  "Show pull request on the browser",
 	Run: func(cmd *cobra.Command, args []string) {
 		number, err := strconv.Atoi(args[0])
-
 		if err != nil {
 			panic(err)
 		}
@@ -22,9 +21,7 @@ var showCmd = &cobra.Command{
 			LastResultsPath: "/tmp/lgtm.json",
 		}
 
-		err = browser.Open(int32(number))
-
-		if err != nil {
+		if err := browser.Open(int32(number)); err != nil {
 			panic(err)
 		}
 	},

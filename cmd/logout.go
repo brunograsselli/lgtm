@@ -10,11 +10,9 @@ var logoutCmd = &cobra.Command{
 	Short: "Logout",
 	Long:  "Logout",
 	Run: func(cmd *cobra.Command, args []string) {
-		secrets := &lgtm.Secrets{Path: secretsPath}
+		secrets := lgtm.NewSecrets(secretsPath)
 
-		err := secrets.DeleteToken()
-
-		if err != nil {
+		if err := secrets.DeleteToken(); err != nil {
 			panic(err)
 		}
 	},

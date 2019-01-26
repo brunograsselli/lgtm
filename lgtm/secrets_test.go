@@ -13,7 +13,7 @@ func TestTokenWhenFileIsPresent(t *testing.T) {
 
 	defer os.Remove(path)
 
-	s := &Secrets{Path: path}
+	s := NewSecrets(path)
 
 	token, err := s.Token()
 
@@ -31,7 +31,7 @@ func TestCheckWhenFileIsPresent(t *testing.T) {
 
 	defer os.Remove(path)
 
-	s := &Secrets{Path: path}
+	s := NewSecrets(path)
 
 	result := s.CheckToken()
 
@@ -41,7 +41,7 @@ func TestCheckWhenFileIsPresent(t *testing.T) {
 }
 
 func TestCheckWhenFileIsNotPresent(t *testing.T) {
-	s := &Secrets{Path: path}
+	s := NewSecrets(path)
 
 	result := s.CheckToken()
 
@@ -51,7 +51,7 @@ func TestCheckWhenFileIsNotPresent(t *testing.T) {
 }
 
 func TestSaveToken(t *testing.T) {
-	s := &Secrets{Path: path}
+	s := NewSecrets(path)
 
 	err := s.SaveToken([]byte("abc"))
 
@@ -79,7 +79,7 @@ func TestDeleteTokenWhenFileIsPresent(t *testing.T) {
 		}
 	}()
 
-	s := &Secrets{Path: path}
+	s := NewSecrets(path)
 
 	err := s.DeleteToken()
 
@@ -93,7 +93,7 @@ func TestDeleteTokenWhenFileIsPresent(t *testing.T) {
 }
 
 func TestDeleteTokenWhenFileIsNotPresent(t *testing.T) {
-	s := &Secrets{Path: path}
+	s := NewSecrets(path)
 
 	err := s.DeleteToken()
 
