@@ -21,8 +21,8 @@ func (s *Secrets) CheckToken() bool {
 	return true
 }
 
-func (s *Secrets) SaveToken(token string) error {
-	return ioutil.WriteFile(s.Path, []byte(token), 0644)
+func (s *Secrets) SaveToken(token []byte) error {
+	return ioutil.WriteFile(s.Path, token, 0644)
 }
 
 func (s *Secrets) DeleteToken() error {
