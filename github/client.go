@@ -3,10 +3,18 @@ package github
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
+)
+
+const (
+	protocol        = "https://"
+	host            = "api.github.com"
+	authURI         = "/authorizations"
+	pullRequestsURI = "/repos/%s/pulls?sort=created&direction=asc"
+	reviewsURI      = "/repos/%s/pulls/%d/reviews?sort=created&direction=asc"
 )
 
 type Client struct {
@@ -20,8 +28,7 @@ func NewClient(token []byte) *Client {
 func Authorize(user string, password string, fingerprint string, otpCode string) (*http.Response, error) {
 	reqBody := []byte(fmt.Sprintf(`{"note":"lgtm","scopes":["repo"],"fingerprint":"%s"}`, fingerprint))
 
-	req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewBuffer(reqBody))
-
+	req, err := http.NewRequest("POST", url(authURI), bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +44,7 @@ func Authorize(user string, password string, fingerprint string, otpCode string)
 }
 
 func (c *Client) PullRequests(repository string) ([]PullRequest, error) {
-	body, err := c.get(fmt.Sprintf("/repos/%s/pulls?sort=created&direction=asc", repository))
-
+	body, err := c.get(url(pullRequestsURI, repository))
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +56,7 @@ func (c *Client) PullRequests(repository string) ([]PullRequest, error) {
 }
 
 func (c *Client) Reviews(repository string, pullRequestNumber int32) ([]Review, error) {
-	body, err := c.get(fmt.Sprintf("/repos/%s/pulls/%d/reviews?sort=created&direction=asc", repository, pullRequestNumber))
-
+	body, err := c.get(url(reviewsURI, repository, pullRequestNumber))
 	if err != nil {
 		return nil, err
 	}
@@ -62,12 +67,10 @@ func (c *Client) Reviews(repository string, pullRequestNumber int32) ([]Review, 
 	return reviews, nil
 }
 
-func (c *Client) get(uri string) ([]byte, error) {
+func (c *Client) get(url string) ([]byte, error) {
 	client := &http.Client{}
 
-	url := fmt.Sprintf("https://api.github.com%s", uri)
 	req, err := http.NewRequest("GET", url, nil)
-
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +78,6 @@ func (c *Client) get(uri string) ([]byte, error) {
 	req.Header.Add("Authorization", fmt.Sprintf("token %s", c.token))
 
 	resp, err := client.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
@@ -83,14 +85,17 @@ func (c *Client) get(uri string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, errors.New(fmt.Sprintf("Unexpected response code %d", resp.StatusCode))
+		return nil, fmt.Errorf("Unexpected response code %d", resp.StatusCode)
 	}
 
 	return body, nil
+}
+
+func url(uri string, opts ...interface{}) string {
+	return fmt.Sprintf(strings.Join([]string{protocol, host, uri}, ""), opts...)
 }
